@@ -1,61 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, ArrowRight, ArrowUpRight } from 'lucide-react';
-import { flightService } from '../services/api';
+import { MapPin, ArrowRight } from 'lucide-react';
+import { flightService, fallbackData } from '../services/api';
 
 export default function PopularDestinations() {
   const navigate = useNavigate();
-  const [destinations, setDestinations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [destinations, setDestinations] = useState(fallbackData.destinations);
+  const [loading, setLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
 
   useEffect(() => {
+    let isMounted = true;
     const fetchDestinations = async () => {
       try {
         const res = await flightService.getDestinations(activeFilter);
-        setDestinations(res.data.data);
+        if (isMounted && res?.data?.data && Array.isArray(res.data.data)) {
+          setDestinations(res.data.data);
+        }
       } catch (err) {
-        // Fallback default destinations matching image
-        setDestinations([
-          {
-            id: 'dest-1',
-            name: 'Dubai',
-            country: 'United Arab Emirates',
-            code: 'DXB',
-            image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
-            price: '$ 482'
-          },
-          {
-            id: 'dest-2',
-            name: 'Singapore',
-            country: 'Singapore',
-            code: 'SIN',
-            image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80',
-            price: '$ 620'
-          },
-          {
-            id: 'dest-3',
-            name: 'Bangkok',
-            country: 'Thailand',
-            code: 'BKK',
-            image: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=800&q=80',
-            price: '$ 398'
-          },
-          {
-            id: 'dest-4',
-            name: "Cox's Bazar",
-            country: 'Bangladesh',
-            code: 'CXB',
-            image: 'https://images.unsplash.com/photo-1628178822394-43cb4d122244?auto=format&fit=crop&w=800&q=80',
-            price: '৳ 12,500'
-          }
-        ]);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          setDestinations(fallbackData.destinations);
+        }
       }
     };
     fetchDestinations();
+    return () => { isMounted = false; };
   }, [activeFilter]);
+
+  const safeDestinations = Array.isArray(destinations) && destinations.length > 0 ? destinations : fallbackData.destinations;
 
   const handleDestinationClick = (dest) => {
     navigate(`/flights?to=${dest.code || dest.name}`);
@@ -104,7 +76,7 @@ export default function PopularDestinations() {
 
       {/* 4 Cards Grid matching exact reference mockup */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {destinations.slice(0, 4).map((dest) => (
+        {safeDestinations.slice(0, 4).map((dest) => (
           <div
             key={dest.id || dest.name}
             onClick={() => handleDestinationClick(dest)}

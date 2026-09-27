@@ -12,7 +12,7 @@ import {
   SlidersHorizontal,
   Info
 } from 'lucide-react';
-import { flightService } from '../services/api';
+import { flightService, fallbackData } from '../services/api';
 import { useBooking } from '../context/BookingContext';
 
 export default function FlightSearchPage() {
@@ -23,14 +23,15 @@ export default function FlightSearchPage() {
   const fromQuery = searchParams.get('from') || 'DAC';
   const toQuery = searchParams.get('to') || 'DXB';
 
-  const [flights, setFlights] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [flights, setFlights] = useState(fallbackData.flights);
+  const [loading, setLoading] = useState(false);
   const [selectedStops, setSelectedStops] = useState('all');
   const [selectedAirline, setSelectedAirline] = useState('all');
   const [expandedFlightId, setExpandedFlightId] = useState(null);
   const [maxPrice, setMaxPrice] = useState(1000);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchFlights = async () => {
       setLoading(true);
       try {
@@ -38,23 +39,28 @@ export default function FlightSearchPage() {
           from: fromQuery,
           to: toQuery
         });
-        setFlights(res.data.data);
+        if (isMounted && res?.data?.data && Array.isArray(res.data.data)) {
+          setFlights(res.data.data);
+        }
       } catch (err) {
-        console.error('Error loading flights:', err);
+        if (isMounted) setFlights(fallbackData.flights);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchFlights();
+    return () => { isMounted = false; };
   }, [fromQuery, toQuery]);
 
+  const safeFlights = Array.isArray(flights) && flights.length > 0 ? flights : fallbackData.flights;
+
   // Filter flights
-  const filteredFlights = flights.filter(f => {
+  const filteredFlights = safeFlights.filter(f => {
     if (selectedStops !== 'all') {
       if (selectedStops === 'direct' && f.stopCount > 0) return false;
       if (selectedStops === 'stops' && f.stopCount === 0) return false;
     }
-    if (selectedAirline !== 'all' && !f.airline.toLowerCase().includes(selectedAirline.toLowerCase())) {
+    if (selectedAirline !== 'all' && !f.airline?.toLowerCase().includes(selectedAirline.toLowerCase())) {
       return false;
     }
     if (f.price > maxPrice) return false;
@@ -228,7 +234,7 @@ export default function FlightSearchPage() {
                         {/* Departure */}
                         <div className="text-left">
                           <div className="text-base font-black text-slate-900">{flight.departureTime}</div>
-                          <div className="text-xs font-bold text-slate-600">{flight.from.city} ({flight.from.code})</div>
+                          <div className="text-xs font-bold text-slate-600">{flight.from?.city} ({flight.from?.code})</div>
                         </div>
 
                         {/* Duration graphic */}
@@ -249,7 +255,7 @@ export default function FlightSearchPage() {
                         {/* Arrival */}
                         <div className="text-right">
                           <div className="text-base font-black text-slate-900">{flight.arrivalTime}</div>
-                          <div className="text-xs font-bold text-slate-600">{flight.to.city} ({flight.to.code})</div>
+                          <div className="text-xs font-bold text-slate-600">{flight.to?.city} ({flight.to?.code})</div>
                         </div>
                       </div>
 
@@ -306,8 +312,8 @@ export default function FlightSearchPage() {
                           <h5 className="font-bold text-slate-800">Flight Itinerary & Aircraft</h5>
                           <p>• Flight: <strong>{flight.airline} {flight.flightNumber}</strong></p>
                           <p>• Aircraft Type: <strong>{flight.aircraft}</strong></p>
-                          <p>• Origin: {flight.from.airport} ({flight.from.code})</p>
-                          <p>• Destination: {flight.to.airport} ({flight.to.code})</p>
+                          <p>• Origin: {flight.from?.airport} ({flight.from?.code})</p>
+                          <p>• Destination: {flight.to?.airport} ({flight.to?.code})</p>
                         </div>
 
                         <div className="space-y-1.5">
