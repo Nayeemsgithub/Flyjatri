@@ -1,28 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, MapPin, Star, Wifi, Coffee, Check, ArrowRight } from 'lucide-react';
-import { hotelService } from '../services/api';
+import { hotelService, fallbackData } from '../services/api';
 import { useBooking } from '../context/BookingContext';
 
 export default function HotelSearchPage() {
-  const [hotels, setHotels] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [hotels, setHotels] = useState(fallbackData.hotels);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { startBooking } = useBooking();
 
   useEffect(() => {
+    let isMounted = true;
     const fetchHotels = async () => {
       try {
         const res = await hotelService.getHotels();
-        setHotels(res.data.data);
+        if (isMounted && res?.data?.data && Array.isArray(res.data.data)) {
+          setHotels(res.data.data);
+        }
       } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
+        if (isMounted) setHotels(fallbackData.hotels);
       }
     };
     fetchHotels();
+    return () => { isMounted = false; };
   }, []);
+
+  const safeHotels = Array.isArray(hotels) && hotels.length > 0 ? hotels : fallbackData.hotels;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] py-10">
@@ -43,7 +47,7 @@ export default function HotelSearchPage() {
 
         {/* Hotels List */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {hotels.map((hotel) => (
+          {safeHotels.map((hotel) => (
             <div key={hotel.id} className="bg-white rounded-3xl border border-slate-200/80 shadow-soft overflow-hidden flex flex-col justify-between group">
               <div>
                 <div className="relative h-56">
@@ -54,7 +58,7 @@ export default function HotelSearchPage() {
                   />
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-bold text-amber-500 flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 fill-amber-400" />
-                    <span>{hotel.rating} Star Luxury</span>
+                    <span>{hotel.rating || 5} Star Luxury</span>
                   </div>
                 </div>
 

@@ -2,6 +2,10 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
       "source": "/((?!assets/|favicon.ico|.*\\..*).*)",
       "destination": "/index.html"
     }

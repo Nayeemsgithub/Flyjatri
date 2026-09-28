@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "FlyJatri - Full Stack MERN Travel & Tour Booking Platform",
   "scripts": {
+    "dev": "npm --prefix client run dev",
+    "build": "npm --prefix client install && npm --prefix client run build",
+    "start": "node server/index.js",
     "server": "node server/index.js",
-    "client": "node client/node_modules/vite/bin/vite.js client",
-    "build": "node client/node_modules/vite/bin/vite.js build client"
+    "client": "npm --prefix client run dev"
   },
   "keywords": ["mern", "travel", "tour", "booking", "flights", "hotels", "visa"],
   "author": "FlyJatri",

@@ -1,32 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Globe2, Clock, CheckCircle2, FileText, ArrowRight, ShieldCheck } from 'lucide-react';
-import { visaService } from '../services/api';
+import { visaService, fallbackData } from '../services/api';
 import { useBooking } from '../context/BookingContext';
 
 export default function VisaAssistancePage() {
-  const [visas, setVisas] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [visas, setVisas] = useState(fallbackData.visas);
+  const [selectedCountry, setSelectedCountry] = useState(fallbackData.visas[0]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { startBooking } = useBooking();
 
   useEffect(() => {
+    let isMounted = true;
     const fetchVisas = async () => {
       try {
         const res = await visaService.getVisaServices();
-        setVisas(res.data.data);
-        if (res.data.data.length > 0) {
-          setSelectedCountry(res.data.data[0]);
+        if (isMounted && res?.data?.data && Array.isArray(res.data.data)) {
+          setVisas(res.data.data);
+          if (res.data.data.length > 0) {
+            setSelectedCountry(res.data.data[0]);
+          }
         }
       } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          setVisas(fallbackData.visas);
+          setSelectedCountry(fallbackData.visas[0]);
+        }
       }
     };
     fetchVisas();
+    return () => { isMounted = false; };
   }, []);
+
+  const safeVisas = Array.isArray(visas) && visas.length > 0 ? visas : fallbackData.visas;
+  const activeCountry = selectedCountry || safeVisas[0];
 
   const handleApplyVisa = (visa) => {
     startBooking(visa, 'visa');
@@ -55,12 +63,12 @@ export default function VisaAssistancePage() {
           {/* Country Selection List */}
           <div className="lg:col-span-4 space-y-3">
             <h3 className="text-sm font-bold uppercase text-slate-400 tracking-wider mb-2">Select Country</h3>
-            {visas.map((visa) => (
+            {safeVisas.map((visa) => (
               <button
                 key={visa.id}
                 onClick={() => setSelectedCountry(visa)}
                 className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 flex items-center justify-between ${
-                  selectedCountry?.id === visa.id
+                  activeCountry?.id === visa.id
                     ? 'bg-white border-[#E11D48] shadow-lg scale-[1.02]'
                     : 'bg-white/70 border-slate-200 hover:bg-white hover:border-slate-300'
                 }`}
@@ -72,29 +80,29 @@ export default function VisaAssistancePage() {
                     <div className="text-xs text-slate-400 font-medium">Processing: {visa.processingTime}</div>
                   </div>
                 </div>
-                <ArrowRight className={`w-4 h-4 ${selectedCountry?.id === visa.id ? 'text-[#E11D48]' : 'text-slate-300'}`} />
+                <ArrowRight className={`w-4 h-4 ${activeCountry?.id === visa.id ? 'text-[#E11D48]' : 'text-slate-300'}`} />
               </button>
             ))}
           </div>
 
           {/* Active Country Detail & Checklist */}
-          {selectedCountry && (
+          {activeCountry && (
             <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-soft">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
                 <div className="flex items-center gap-3">
-                  <span className="text-4xl">{selectedCountry.flag}</span>
+                  <span className="text-4xl">{activeCountry.flag}</span>
                   <div>
-                    <h2 className="text-2xl font-black text-slate-900">{selectedCountry.country}</h2>
+                    <h2 className="text-2xl font-black text-slate-900">{activeCountry.country}</h2>
                     <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">
-                      Processing: {selectedCountry.processingTime}
+                      Processing: {activeCountry.processingTime}
                     </span>
                   </div>
                 </div>
 
                 <div className="text-left sm:text-right">
                   <div className="text-xs text-slate-400 font-semibold">Service Fee From</div>
-                  <div className="text-2xl font-black text-[#E11D48]">${selectedCountry.price}</div>
+                  <div className="text-2xl font-black text-[#E11D48]">${activeCountry.price}</div>
                 </div>
               </div>
 
@@ -102,7 +110,7 @@ export default function VisaAssistancePage() {
               <div className="mt-6">
                 <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider mb-3">Available Visa Categories</h4>
                 <div className="flex flex-wrap gap-2">
-                  {selectedCountry.types?.map((type, idx) => (
+                  {activeCountry.types?.map((type, idx) => (
                     <span key={idx} className="px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl">
                       {type}
                     </span>
@@ -114,7 +122,7 @@ export default function VisaAssistancePage() {
               <div className="mt-6">
                 <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider mb-3">Required Documents Checklist</h4>
                 <div className="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                  {selectedCountry.requirements?.map((req, idx) => (
+                  {activeCountry.requirements?.map((req, idx) => (
                     <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-700">
                       <CheckCircle2 className="w-4 h-4 text-[#E11D48] flex-shrink-0 mt-0.5" />
                       <span>{req}</span>
@@ -126,10 +134,10 @@ export default function VisaAssistancePage() {
               {/* Apply Action */}
               <div className="mt-8 flex justify-end">
                 <button
-                  onClick={() => handleApplyVisa(selectedCountry)}
+                  onClick={() => handleApplyVisa(activeCountry)}
                   className="w-full sm:w-auto px-8 py-3.5 bg-[#E11D48] hover:bg-rose-700 text-white rounded-2xl font-bold text-sm shadow-lg shadow-rose-600/25 transition"
                 >
-                  Apply for {selectedCountry.country} Visa
+                  Apply for {activeCountry.country} Visa
                 </button>
               </div>
 

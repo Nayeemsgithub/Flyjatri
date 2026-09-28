@@ -1,32 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Palmtree, MapPin, Clock, Star, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { tourService } from '../services/api';
+import { tourService, fallbackData } from '../services/api';
 import { useBooking } from '../context/BookingContext';
 
 export default function TourPackagesPage() {
-  const [tours, setTours] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tours, setTours] = useState(fallbackData.tours);
+  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('All');
   const navigate = useNavigate();
   const { startBooking } = useBooking();
 
   useEffect(() => {
+    let isMounted = true;
     const fetchTours = async () => {
-      setLoading(true);
       try {
         const res = await tourService.getTours();
-        setTours(res.data.data);
+        if (isMounted && res?.data?.data && Array.isArray(res.data.data)) {
+          setTours(res.data.data);
+        }
       } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+        if (isMounted) setTours(fallbackData.tours);
       }
     };
     fetchTours();
+    return () => { isMounted = false; };
   }, []);
 
-  const filteredTours = tours.filter(t => {
+  const safeTours = Array.isArray(tours) && tours.length > 0 ? tours : fallbackData.tours;
+
+  const filteredTours = safeTours.filter(t => {
     if (filter === 'All') return true;
     if (filter === 'International') return t.destination === 'Maldives' || t.destination === 'Dubai';
     if (filter === 'Domestic') return t.destination === "Cox's Bazar" || t.destination === 'Sajek Valley';
@@ -113,7 +116,7 @@ export default function TourPackagesPage() {
                     </span>
                     <span className="flex items-center gap-1 text-amber-500">
                       <Star className="w-3.5 h-3.5 fill-amber-400" />
-                      {pkg.rating} ({pkg.reviewsCount})
+                      {pkg.rating || 4.9} ({pkg.reviewsCount || 100})
                     </span>
                   </div>
 
