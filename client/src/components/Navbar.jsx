@@ -11,6 +11,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import FlyJatriLogo from './FlyJatriLogo';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -43,22 +44,9 @@ export default function Navbar() {
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
           
-          {/* Brand Logo matching image */}
-          <Link to="/" className="flex items-center gap-1.5 group flex-shrink-0">
-            {/* Wing / Plane stylized mark */}
-            <div className="flex items-center">
-              <svg className="w-8 h-7 text-[#E11D48]" viewBox="0 0 36 28" fill="currentColor">
-                <path d="M4 22L16 4h6l-8 18h-10zm12 0l8-12h6l-5 12h-9zm11 0l4-6h5l-3 6h-6z"/>
-              </svg>
-              <div className="flex flex-col -ml-1">
-                <span className="text-[26px] font-black italic tracking-tighter text-[#E11D48] leading-none">
-                  FLYJATRI
-                </span>
-                <span className="text-[8px] font-bold tracking-[0.2em] text-slate-700 uppercase -mt-0.5">
-                  YOUR TRIP OUR ASSISTANCE
-                </span>
-              </div>
-            </div>
+          {/* Exact Brand Logo matching uploaded image */}
+          <Link to="/" className="flex items-center group flex-shrink-0">
+            <FlyJatriLogo variant="red" showSubtext={true} />
           </Link>
 
           {/* Desktop Navigation Links */}
