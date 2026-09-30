@@ -1,117 +1,106 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, ArrowRight } from 'lucide-react';
-import { flightService, fallbackData } from '../services/api';
 
 export default function PopularDestinations() {
   const navigate = useNavigate();
-  const [destinations, setDestinations] = useState(fallbackData.destinations);
-  const [loading, setLoading] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('All');
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchDestinations = async () => {
-      try {
-        const res = await flightService.getDestinations(activeFilter);
-        if (isMounted && res?.data?.data && Array.isArray(res.data.data)) {
-          setDestinations(res.data.data);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setDestinations(fallbackData.destinations);
-        }
-      }
-    };
-    fetchDestinations();
-    return () => { isMounted = false; };
-  }, [activeFilter]);
-
-  const safeDestinations = Array.isArray(destinations) && destinations.length > 0 ? destinations : fallbackData.destinations;
+  const destinations = [
+    {
+      id: 'dest-1',
+      name: 'Dubai',
+      code: 'DXB',
+      price: '$ 482',
+      image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80'
+    },
+    {
+      id: 'dest-2',
+      name: 'Singapore',
+      code: 'SIN',
+      price: '$ 620',
+      image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80'
+    },
+    {
+      id: 'dest-3',
+      name: 'Bangkok',
+      code: 'BKK',
+      price: '$ 398',
+      image: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=800&q=80'
+    },
+    {
+      id: 'dest-4',
+      name: "Cox's Bazar",
+      code: 'CXB',
+      price: '৳ 12,500',
+      image: 'https://images.unsplash.com/photo-1628178822394-43cb4d122244?auto=format&fit=crop&w=800&q=80'
+    }
+  ];
 
   const handleDestinationClick = (dest) => {
-    navigate(`/flights?to=${dest.code || dest.name}`);
+    navigate(`/flights?to=${dest.code}`);
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <section className="w-full">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Popular Destinations
           </h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-0.5">
             Discover amazing places around the world
           </p>
         </div>
 
-        <div className="mt-3 sm:mt-0 flex items-center gap-4">
-          <div className="flex gap-2">
-            {['All', 'Domestic', 'International'].map(filter => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
-                  activeFilter === filter
-                    ? 'bg-[#E11D48] text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={() => navigate('/flights')}
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#E11D48] transition-colors"
-          >
-            <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        <button
+          onClick={() => navigate('/flights')}
+          className="text-xs font-bold text-slate-700 hover:text-[#E11D48] flex items-center gap-1 transition-colors"
+        >
+          <span>View All</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
       </div>
 
       {/* 4 Cards Grid matching exact reference mockup */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {safeDestinations.slice(0, 4).map((dest) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {destinations.map((dest) => (
           <div
-            key={dest.id || dest.name}
+            key={dest.id}
             onClick={() => handleDestinationClick(dest)}
-            className="group relative h-64 sm:h-72 rounded-2xl overflow-hidden shadow-soft hover:shadow-2xl cursor-pointer transition-all duration-300 transform hover:-translate-y-1"
+            className="group relative h-48 sm:h-52 rounded-2xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer transition-all duration-200"
           >
             {/* Background Destination Photo */}
             <img
               src={dest.image}
               alt={dest.name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             />
             
-            {/* Dark gradient overlay for readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent"></div>
+            {/* Dark gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
 
             {/* Content Container */}
-            <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
+            <div className="absolute inset-0 p-3.5 flex flex-col justify-end text-white">
               
-              <div className="flex items-center justify-between">
+              <div className="flex items-end justify-between">
                 <div>
                   {/* City Name with Pin */}
-                  <div className="flex items-center gap-1.5 text-white font-bold text-lg drop-shadow-md">
-                    <MapPin className="w-4 h-4 text-[#E11D48] fill-[#E11D48]" />
+                  <div className="flex items-center gap-1 text-white font-bold text-sm">
+                    <MapPin className="w-3.5 h-3.5 text-white fill-white" />
                     <span>{dest.name}</span>
                   </div>
 
                   {/* Price Tag */}
-                  <div className="text-xs text-slate-200 mt-0.5">
-                    From <span className="font-extrabold text-white text-sm">{dest.price}</span>
+                  <div className="text-[11px] text-slate-200 mt-0.5">
+                    From <span className="font-bold text-white text-xs">{dest.price}</span>
                   </div>
                 </div>
 
                 {/* Circular Action Button */}
-                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md group-hover:bg-[#E11D48] flex items-center justify-center text-white transition-colors duration-300">
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <div className="w-6 h-6 rounded-full bg-white/30 backdrop-blur-sm group-hover:bg-white flex items-center justify-center text-white group-hover:text-slate-900 transition-colors duration-200">
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
 

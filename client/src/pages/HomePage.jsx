@@ -15,8 +15,8 @@ export default function HomePage() {
       {/* 2. 7 Quick Service Cards with Rounded Colored Icons */}
       <ServiceCards />
 
-      {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Main Content Grid */}
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         
         {/* 3. Popular Destinations (Dubai, Singapore, Bangkok, Cox's Bazar) */}
         <PopularDestinations />
@@ -25,11 +25,11 @@ export default function HomePage() {
         <SpecialOffers />
 
         {/* 5. Bottom Grid: Visa Assistance (Left) + Latest Travel Offers (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          <div className="lg:col-span-7 flex flex-col justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+          <div className="lg:col-span-7">
             <VisaPromo />
           </div>
-          <div className="lg:col-span-5 flex flex-col justify-center">
+          <div className="lg:col-span-5">
             <LatestOffersRow />
           </div>
         </div>

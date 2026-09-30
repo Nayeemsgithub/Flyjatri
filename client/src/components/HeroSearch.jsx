@@ -4,19 +4,15 @@ import {
   Plane, 
   Building2, 
   Palmtree, 
-  Globe2, 
+  CreditCard, 
   Bus, 
   Train, 
   Car, 
   Search, 
   Calendar, 
-  Users, 
-  MapPin, 
-  ArrowRightLeft,
+  User, 
   ChevronDown,
-  Sparkles,
-  Check,
-  CreditCard
+  Check
 } from 'lucide-react';
 import { useBooking } from '../context/BookingContext';
 
@@ -34,7 +30,7 @@ export default function HeroSearch() {
 
   // Flight search states
   const [fromLocation, setFromLocation] = useState({ city: 'Dhaka', code: 'DAC', airport: 'Hazrat Shahjalal Intl' });
-  const [toLocation, setToLocation] = useState({ city: 'Dubai', code: 'DXB', airport: 'Dubai International' });
+  const [toLocation, setToLocation] = useState({ city: '', code: '', airport: '' });
   const [departureDate, setDepartureDate] = useState('2026-09-25');
   const [returnDate, setReturnDate] = useState('2026-09-26');
   const [passengers, setPassengers] = useState({ adults: 1, children: 0, infants: 0 });
@@ -75,26 +71,19 @@ export default function HeroSearch() {
     { id: 'cars', label: 'Rent a Car', icon: Car }
   ];
 
-  const handleSwapLocations = (e) => {
-    e.stopPropagation();
-    const temp = fromLocation;
-    setFromLocation(toLocation);
-    setToLocation(temp);
-  };
-
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (activeTab === 'flights') {
       updateSearchCriteria({
         from: fromLocation,
-        to: toLocation,
+        to: toLocation.code ? toLocation : { city: 'Dubai', code: 'DXB' },
         departureDate,
         returnDate,
         tripType,
         passengers,
         cabinClass
       });
-      navigate(`/flights?from=${fromLocation.code}&to=${toLocation.code}&date=${departureDate}`);
+      navigate(`/flights?from=${fromLocation.code}&to=${toLocation.code || 'DXB'}&date=${departureDate}`);
     } else if (activeTab === 'hotels') {
       navigate(`/hotels?city=${hotelCity}`);
     } else if (activeTab === 'tours') {
@@ -109,60 +98,57 @@ export default function HeroSearch() {
   const totalPassengers = passengers.adults + passengers.children + passengers.infants;
 
   return (
-    <div className="relative w-full bg-slate-900 overflow-hidden min-h-[560px] lg:min-h-[620px] flex items-center">
+    <div className="relative w-full bg-[#0F172A] overflow-visible min-h-[520px] lg:min-h-[580px] flex flex-col justify-between pt-10 pb-16">
       
       {/* High-res Hero Aerial Airplane Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000"
+        className="absolute inset-0 bg-cover bg-right lg:bg-center bg-no-repeat"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?auto=format&fit=crop&w=2000&q=85')`
         }}
       >
-        {/* Subtle overlay gradient to ensure text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/50 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-slate-900/40 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 w-full z-10">
+      <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
         
-        {/* Hero Top Title & Callouts */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mb-8">
+        {/* Hero Top Title & Handwriting Watermark */}
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between mb-8 pt-2">
           
-          <div className="lg:col-span-8 text-white">
-            <div className="inline-flex items-center gap-1.5 text-rose-400 text-xs font-bold uppercase tracking-widest mb-3">
-              <span>EXPLORE THE WORLD</span>
-              <span className="text-rose-400">⟶</span>
+          <div className="text-white max-w-xl">
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest mb-3">
+              <span className="text-white">EXPLORE THE WORLD</span>
+              <span className="text-rose-500 font-black">⟶</span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold tracking-tight text-white leading-[1.1]">
+            <h1 className="text-3xl sm:text-4xl lg:text-[46px] font-black text-white leading-[1.1] tracking-tight">
               Your Complete Travel <br />
-              <span>Solution</span>
+              Solution
             </h1>
 
-            <p className="mt-3 text-slate-200 text-xs sm:text-sm max-w-xl font-normal leading-relaxed drop-shadow-sm">
+            <p className="mt-3 text-slate-100 text-xs sm:text-[13px] font-normal leading-relaxed opacity-90">
               Flights, Hotels, Tours, Visa, Transport & More – <br />
               All in One Place. Plan Your Next Journey with FlyJatri.
             </p>
           </div>
 
           {/* Hand-drawn style floating badge matching image */}
-          <div className="hidden lg:flex lg:col-span-4 justify-end items-center pr-4 pt-2">
-            <div className="text-right text-white transform rotate-2 select-none">
-              <p className="font-handwriting text-3xl sm:text-4xl text-rose-100 font-bold leading-none tracking-wide drop-shadow-md">
-                More <br />
-                <span className="text-white text-3xl sm:text-4xl">Journeys ➔</span> <br />
-                <span className="text-white text-4xl sm:text-5xl">More Stories</span>
-              </p>
+          <div className="hidden lg:block text-right pr-6 pt-4 select-none">
+            <div className="font-handwriting text-2xl sm:text-3xl text-rose-100 leading-none">
+              <span className="text-white font-bold">More</span> <br />
+              <span className="text-white font-bold">Journeys ➔</span> <br />
+              <span className="text-white text-3xl sm:text-4xl font-bold">More Stories</span>
             </div>
           </div>
 
         </div>
 
         {/* Tabbed Booking Search Widget */}
-        <div className="w-full">
+        <div className="w-full mt-4">
           
           {/* Top Tabs Pill Container */}
-          <div className="inline-flex items-center bg-white/95 backdrop-blur-md rounded-t-2xl shadow-md border-t border-l border-r border-slate-100 p-1">
+          <div className="inline-flex items-center bg-white rounded-t-2xl shadow-sm overflow-hidden p-0.5">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isSelected = activeTab === tab.id;
@@ -170,10 +156,10 @@ export default function HeroSearch() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-150 whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-colors whitespace-nowrap ${
                     isSelected
                       ? 'bg-[#E11D48] text-white shadow-sm'
-                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/70'
+                      : 'text-slate-800 hover:text-[#E11D48]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -183,36 +169,34 @@ export default function HeroSearch() {
             })}
           </div>
 
-          {/* Search Bar Row Container */}
-          <div className="bg-white rounded-b-3xl rounded-tr-3xl shadow-2xl border border-slate-100 p-3 sm:p-4">
+          {/* Search Inputs Card */}
+          <div className="bg-white rounded-b-2xl rounded-tr-2xl shadow-xl border border-slate-100 p-2.5">
             
             <form onSubmit={handleSearchSubmit}>
               
-              {/* FLIGHTS TAB FIELDS */}
+              {/* FLIGHTS TAB ROW */}
               {activeTab === 'flights' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-2 lg:gap-0 items-center bg-white rounded-2xl border border-slate-200">
+                <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-0">
                   
                   {/* 1. Origin (From) */}
-                  <div className="relative lg:col-span-2 p-3 lg:border-r border-slate-200 hover:bg-slate-50/50 transition">
-                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">From</div>
+                  <div className="relative w-full lg:flex-1 p-2.5 lg:border-r border-slate-200">
+                    <div className="text-[10px] text-slate-400 font-semibold uppercase">From</div>
                     <button
                       type="button"
                       onClick={() => setShowFromDropdown(!showFromDropdown)}
-                      className="w-full text-left flex items-center justify-between mt-0.5 focus:outline-none"
+                      className="w-full text-left flex items-center justify-between mt-0.5"
                     >
                       <div className="flex items-center gap-2 truncate">
-                        <Plane className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                        <div className="truncate">
-                          <div className="text-xs sm:text-sm font-bold text-slate-900">
-                            {fromLocation.city} ({fromLocation.code})
-                          </div>
+                        <Plane className="w-4 h-4 text-slate-500 flex-shrink-0 transform -rotate-45" />
+                        <div className="text-[13px] font-bold text-slate-900 truncate">
+                          {fromLocation.city} ({fromLocation.code})
                         </div>
                       </div>
                     </button>
 
                     {showFromDropdown && (
                       <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 z-50">
-                        <div className="text-xs font-bold text-slate-400 px-3 py-1.5 uppercase">Select Origin Airport</div>
+                        <div className="text-xs font-bold text-slate-400 px-3 py-1 uppercase">Select Origin Airport</div>
                         <div className="max-h-56 overflow-y-auto space-y-1">
                           {airports.map((ap) => (
                             <button
@@ -237,26 +221,24 @@ export default function HeroSearch() {
                   </div>
 
                   {/* 2. Destination (To) */}
-                  <div className="relative lg:col-span-3 p-3 lg:border-r border-slate-200 hover:bg-slate-50/50 transition">
-                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">To</div>
+                  <div className="relative w-full lg:flex-1 p-2.5 lg:border-r border-slate-200">
+                    <div className="text-[10px] text-slate-400 font-semibold uppercase">To</div>
                     <button
                       type="button"
                       onClick={() => setShowToDropdown(!showToDropdown)}
-                      className="w-full text-left flex items-center justify-between mt-0.5 focus:outline-none"
+                      className="w-full text-left flex items-center justify-between mt-0.5"
                     >
                       <div className="flex items-center gap-2 truncate">
-                        <Plane className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                        <div className="truncate">
-                          <div className="text-xs sm:text-sm font-bold text-slate-900">
-                            {toLocation.city ? `${toLocation.city} (${toLocation.code})` : 'Select Destination'}
-                          </div>
+                        <Plane className="w-4 h-4 text-slate-500 flex-shrink-0 transform rotate-45" />
+                        <div className="text-[13px] font-bold text-slate-500 truncate">
+                          {toLocation.city ? `${toLocation.city} (${toLocation.code})` : 'Select Destination'}
                         </div>
                       </div>
                     </button>
 
                     {showToDropdown && (
                       <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 z-50">
-                        <div className="text-xs font-bold text-slate-400 px-3 py-1.5 uppercase">Select Destination</div>
+                        <div className="text-xs font-bold text-slate-400 px-3 py-1 uppercase">Select Destination</div>
                         <div className="max-h-56 overflow-y-auto space-y-1">
                           {airports.map((ap) => (
                             <button
@@ -281,113 +263,72 @@ export default function HeroSearch() {
                   </div>
 
                   {/* 3. Departure Date */}
-                  <div className="lg:col-span-2 p-3 lg:border-r border-slate-200 hover:bg-slate-50/50 transition">
-                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Departure Date</div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                      <input
-                        type="date"
-                        value={departureDate}
-                        onChange={(e) => setDepartureDate(e.target.value)}
-                        className="w-full text-xs sm:text-sm font-bold text-slate-900 bg-transparent focus:outline-none cursor-pointer"
-                      />
+                  <div className="w-full lg:flex-1 p-2.5 lg:border-r border-slate-200">
+                    <div className="text-[10px] text-slate-400 font-semibold uppercase">Departure Date</div>
+                    <div className="flex items-center justify-between mt-0.5">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                        <span className="text-[13px] font-bold text-slate-900">25 Sep 2026</span>
+                      </div>
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                     </div>
                   </div>
 
                   {/* 4. Return Date */}
-                  <div className="lg:col-span-2 p-3 lg:border-r border-slate-200 hover:bg-slate-50/50 transition">
-                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Return Date</div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                      <input
-                        type="date"
-                        value={returnDate}
-                        onChange={(e) => setReturnDate(e.target.value)}
-                        className="w-full text-xs sm:text-sm font-bold text-slate-900 bg-transparent focus:outline-none cursor-pointer"
-                      />
+                  <div className="w-full lg:flex-1 p-2.5 lg:border-r border-slate-200">
+                    <div className="text-[10px] text-slate-400 font-semibold uppercase">Return Date</div>
+                    <div className="flex items-center justify-between mt-0.5">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                        <span className="text-[13px] font-bold text-slate-900">26 Sep 2026</span>
+                      </div>
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                     </div>
                   </div>
 
                   {/* 5. Passengers & Class */}
-                  <div className="relative lg:col-span-3 p-3 hover:bg-slate-50/50 transition flex items-center justify-between">
-                    <div>
-                      <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Passengers & Class</div>
-                      <button
-                        type="button"
-                        onClick={() => setShowPassengerDropdown(!showPassengerDropdown)}
-                        className="text-left flex items-center gap-2 mt-0.5 focus:outline-none"
-                      >
-                        <Users className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                        <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                          {totalPassengers} {totalPassengers > 1 ? 'Adults' : 'Adult'} · {cabinClass}
+                  <div className="relative w-full lg:flex-1 p-2.5">
+                    <div className="text-[10px] text-slate-400 font-semibold uppercase">Passengers & Class</div>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassengerDropdown(!showPassengerDropdown)}
+                      className="w-full text-left flex items-center justify-between mt-0.5"
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <User className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                        <span className="text-[13px] font-bold text-slate-900 truncate">
+                          1 Adult · Economy
                         </span>
-                        <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-                      </button>
-                    </div>
+                      </div>
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
 
-                    {/* Popover */}
                     {showPassengerDropdown && (
-                      <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 z-50 space-y-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between text-xs">
-                            <div>
-                              <div className="font-bold text-slate-800">Adults</div>
-                              <div className="text-slate-400 text-[10px]">12+ years</div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => setPassengers(p => ({ ...p, adults: Math.max(1, p.adults - 1) }))}
-                                className="w-6 h-6 rounded-full border border-slate-300 text-slate-600 flex items-center justify-center font-bold"
-                              >-</button>
-                              <span className="w-4 text-center font-bold text-slate-800">{passengers.adults}</span>
-                              <button
-                                type="button"
-                                onClick={() => setPassengers(p => ({ ...p, adults: p.adults + 1 }))}
-                                className="w-6 h-6 rounded-full border border-slate-300 text-slate-600 flex items-center justify-center font-bold"
-                              >+</button>
-                            </div>
+                      <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 z-50 space-y-3">
+                        <div className="flex items-center justify-between text-xs">
+                          <div>
+                            <div className="font-bold text-slate-800">Adults</div>
+                            <div className="text-slate-400 text-[10px]">12+ years</div>
                           </div>
-
-                          <div className="flex items-center justify-between text-xs">
-                            <div>
-                              <div className="font-bold text-slate-800">Children</div>
-                              <div className="text-slate-400 text-[10px]">2-11 years</div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => setPassengers(p => ({ ...p, children: Math.max(0, p.children - 1) }))}
-                                className="w-6 h-6 rounded-full border border-slate-300 text-slate-600 flex items-center justify-center font-bold"
-                              >-</button>
-                              <span className="w-4 text-center font-bold text-slate-800">{passengers.children}</span>
-                              <button
-                                type="button"
-                                onClick={() => setPassengers(p => ({ ...p, children: p.children + 1 }))}
-                                className="w-6 h-6 rounded-full border border-slate-300 text-slate-600 flex items-center justify-center font-bold"
-                              >+</button>
-                            </div>
-                          </div>
-
-                          <div className="pt-2 border-t border-slate-100">
-                            <label className="text-[11px] font-semibold text-slate-400 uppercase">Cabin Class</label>
-                            <select
-                              value={cabinClass}
-                              onChange={(e) => setCabinClass(e.target.value)}
-                              className="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none"
-                            >
-                              <option value="Economy">Economy</option>
-                              <option value="Premium Economy">Premium Economy</option>
-                              <option value="Business">Business Class</option>
-                              <option value="First">First Class</option>
-                            </select>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setPassengers(p => ({ ...p, adults: Math.max(1, p.adults - 1) }))}
+                              className="w-6 h-6 rounded-full border border-slate-300 text-slate-600 flex items-center justify-center font-bold"
+                            >-</button>
+                            <span className="w-4 text-center font-bold text-slate-800">{passengers.adults}</span>
+                            <button
+                              type="button"
+                              onClick={() => setPassengers(p => ({ ...p, adults: p.adults + 1 }))}
+                              className="w-6 h-6 rounded-full border border-slate-300 text-slate-600 flex items-center justify-center font-bold"
+                            >+</button>
                           </div>
                         </div>
 
                         <button
                           type="button"
                           onClick={() => setShowPassengerDropdown(false)}
-                          className="w-full py-1.5 bg-[#E11D48] text-white rounded-lg text-xs font-bold hover:bg-rose-700"
+                          className="w-full py-1.5 bg-[#E11D48] text-white rounded-lg text-xs font-bold"
                         >
                           Apply
                         </button>
@@ -395,161 +336,35 @@ export default function HeroSearch() {
                     )}
                   </div>
 
-                </div>
-              )}
-
-              {/* HOTELS TAB FIELDS */}
-              {activeTab === 'hotels' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 bg-white p-2 rounded-2xl border border-slate-200">
-                  <div className="p-2 border-r border-slate-200">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">Destination City / Hotel</div>
-                    <input
-                      type="text"
-                      value={hotelCity}
-                      onChange={(e) => setHotelCity(e.target.value)}
-                      placeholder="e.g. Dubai, Singapore"
-                      className="w-full mt-1 font-bold text-slate-900 text-xs sm:text-sm bg-transparent focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="p-2 border-r border-slate-200">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">Check-in / Check-out</div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <input
-                        type="date"
-                        value={hotelCheckIn}
-                        onChange={(e) => setHotelCheckIn(e.target.value)}
-                        className="text-xs font-bold text-slate-900 focus:outline-none"
-                      />
-                      <span className="text-slate-400">➔</span>
-                      <input
-                        type="date"
-                        value={hotelCheckOut}
-                        onChange={(e) => setHotelCheckOut(e.target.value)}
-                        className="text-xs font-bold text-slate-900 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-2">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">Rooms & Guests</div>
-                    <input
-                      type="text"
-                      value={hotelGuests}
-                      onChange={(e) => setHotelGuests(e.target.value)}
-                      className="w-full mt-1 font-bold text-slate-900 text-xs sm:text-sm bg-transparent focus:outline-none"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* TOURS TAB FIELDS */}
-              {activeTab === 'tours' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 bg-white p-2 rounded-2xl border border-slate-200">
-                  <div className="p-2 border-r border-slate-200">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">Tour Destination</div>
-                    <select
-                      value={tourDestination}
-                      onChange={(e) => setTourDestination(e.target.value)}
-                      className="w-full mt-1 font-bold text-slate-900 text-xs sm:text-sm bg-transparent focus:outline-none"
+                  {/* 6. Solid Red Search Flights Button */}
+                  <div className="w-full lg:w-auto p-1">
+                    <button
+                      type="submit"
+                      className="w-full lg:w-auto px-6 py-3 bg-[#E11D48] hover:bg-[#BE123C] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition"
                     >
-                      <option value="Maldives">Maldives Luxury Island Tour</option>
-                      <option value="Cox's Bazar">Cox's Bazar 5-Star Beach Haven</option>
-                      <option value="Dubai">Dubai Desert & City Wonders</option>
-                      <option value="Sajek Valley">Sajek Valley Cloud Tour</option>
-                    </select>
+                      <Search className="w-4 h-4" />
+                      <span>Search Flights</span>
+                    </button>
                   </div>
 
-                  <div className="p-2">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">Duration / Theme</div>
-                    <select
-                      value={tourDuration}
-                      onChange={(e) => setTourDuration(e.target.value)}
-                      className="w-full mt-1 font-bold text-slate-900 text-xs sm:text-sm bg-transparent focus:outline-none"
-                    >
-                      <option value="3-5 Days">3-5 Days Short Trip</option>
-                      <option value="5-7 Days">5-7 Days Standard Holiday</option>
-                      <option value="Honeymoon">Honeymoon & Romantic Special</option>
-                    </select>
-                  </div>
                 </div>
               )}
 
-              {/* VISA TAB FIELDS */}
-              {activeTab === 'visa' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 bg-white p-2 rounded-2xl border border-slate-200">
-                  <div className="p-2 border-r border-slate-200">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">Visa Country</div>
-                    <select
-                      value={visaCountry}
-                      onChange={(e) => setVisaCountry(e.target.value)}
-                      className="w-full mt-1 font-bold text-slate-900 text-xs sm:text-sm bg-transparent focus:outline-none"
-                    >
-                      <option value="United Arab Emirates (Dubai)">United Arab Emirates (Dubai)</option>
-                      <option value="Thailand">Thailand</option>
-                      <option value="Singapore">Singapore</option>
-                      <option value="United Kingdom (UK)">United Kingdom (UK)</option>
-                      <option value="United States (USA)">United States (USA)</option>
-                      <option value="Saudi Arabia">Saudi Arabia</option>
-                    </select>
+              {/* OTHER TABS SIMPLE ROW */}
+              {activeTab !== 'flights' && (
+                <div className="flex flex-col sm:flex-row items-center justify-between p-2 gap-3">
+                  <div className="text-xs text-slate-600 font-semibold">
+                    Explore our top verified {activeTab} bookings and custom options across Bangladesh and worldwide.
                   </div>
-
-                  <div className="p-2">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">Visa Category</div>
-                    <select
-                      value={visaType}
-                      onChange={(e) => setVisaType(e.target.value)}
-                      className="w-full mt-1 font-bold text-slate-900 text-xs sm:text-sm bg-transparent focus:outline-none"
-                    >
-                      <option value="Tourist Visa">Tourist Visa</option>
-                      <option value="Business Visa">Business Visa</option>
-                      <option value="Student Visa">Student Visa</option>
-                      <option value="Work Permit Visa">Work Permit Assistance</option>
-                    </select>
-                  </div>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-[#E11D48] text-white rounded-xl font-bold text-xs shadow-sm hover:bg-rose-700 transition flex items-center gap-1.5"
+                  >
+                    <Search className="w-4 h-4" />
+                    <span>Search {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</span>
+                  </button>
                 </div>
               )}
-
-              {/* BUS / TRAIN / CAR FIELDS */}
-              {(activeTab === 'bus' || activeTab === 'train' || activeTab === 'cars') && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 bg-white p-2 rounded-2xl border border-slate-200">
-                  <div className="p-2 border-r border-slate-200">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">From City / Station</div>
-                    <input
-                      type="text"
-                      defaultValue="Dhaka"
-                      className="w-full mt-1 font-bold text-slate-900 text-xs sm:text-sm bg-transparent focus:outline-none"
-                    />
-                  </div>
-                  <div className="p-2">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">To Destination</div>
-                    <input
-                      type="text"
-                      defaultValue="Cox's Bazar"
-                      className="w-full mt-1 font-bold text-slate-900 text-xs sm:text-sm bg-transparent focus:outline-none"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Red Search Flights Action Button */}
-              <div className="mt-3 flex justify-end">
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto px-8 py-3.5 bg-[#E11D48] hover:bg-[#BE123C] active:scale-98 text-white rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md transition-all duration-150"
-                >
-                  <Search className="w-4 h-4" />
-                  <span>
-                    {activeTab === 'flights' && 'Search Flights'}
-                    {activeTab === 'hotels' && 'Search Hotels'}
-                    {activeTab === 'tours' && 'Search Tours'}
-                    {activeTab === 'visa' && 'Search Visa'}
-                    {activeTab === 'bus' && 'Search Bus'}
-                    {activeTab === 'train' && 'Search Train'}
-                    {activeTab === 'cars' && 'Search Car'}
-                  </span>
-                </button>
-              </div>
 
             </form>
 
