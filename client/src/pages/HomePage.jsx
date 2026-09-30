@@ -16,19 +16,23 @@ export default function HomePage() {
       <ServiceCards />
 
       {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* 3. Popular Destinations (Dubai, Singapore, Bangkok, Cox's Bazar) */}
         <PopularDestinations />
 
-        {/* 4. Special Offers (Maldives Escape + Trust Badges) */}
+        {/* 4. Special Offers (Maldives Escape) + Trust Badges */}
         <SpecialOffers />
 
-        {/* 5. Visa Assistance Promo Banner */}
-        <VisaPromo />
-
-        {/* 6. Latest Travel Offers (Hotel, Tour, Flight deals) */}
-        <LatestOffersRow />
+        {/* 5. Bottom Grid: Visa Assistance (Left) + Latest Travel Offers (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="lg:col-span-7 flex flex-col justify-center">
+            <VisaPromo />
+          </div>
+          <div className="lg:col-span-5 flex flex-col justify-center">
+            <LatestOffersRow />
+          </div>
+        </div>
 
       </div>
     </div>
