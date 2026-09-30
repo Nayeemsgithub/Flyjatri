@@ -75,6 +75,21 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+const path = require('path');
+const fs = require('fs');
+
+// Serve Frontend Static Assets if client/dist exists (For Full-Stack single-service hosting on Render)
+const clientDistPath = path.join(__dirname, '../client/dist');
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
+
 // 6. Centralized Error Handling Middleware (Zero stack-trace leakage)
 app.use((err, req, res, next) => {
   console.error('Unhandled API Error:', err.message);
