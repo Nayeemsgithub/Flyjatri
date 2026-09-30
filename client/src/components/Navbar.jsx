@@ -63,37 +63,8 @@ export default function Navbar() {
             <FlyJatriLogo variant="red" showSubtext={true} height={30} />
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden 2xl:flex items-center space-x-5 text-[13.5px] font-medium text-slate-700">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`py-1 relative transition-colors ${
-                  isActive(link.path)
-                    ? 'text-[#E11D48] font-semibold'
-                    : 'text-slate-700 hover:text-[#E11D48]'
-                }`}
-              >
-                {link.name}
-                {isActive(link.path) && (
-                  <span className="absolute -bottom-[23px] left-0 right-0 h-[2.5px] bg-[#E11D48] rounded-t-sm"></span>
-                )}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Right Action Icons in Exact Requested Format: Currency -> Helpline -> Login/Register */}
+          {/* Right Action Items in Exact Clean Sequence: Currency -> Helpline -> Login/Register */}
           <div className="flex items-center space-x-3 sm:space-x-5">
-            
-            {/* App Link (Quick CTA) */}
-            <button 
-              onClick={() => alert('FlyJatri Mobile App for iOS & Android is launching soon!')}
-              className="hidden lg:flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#E11D48] transition-colors py-1.5 px-2.5 rounded-lg hover:bg-slate-50"
-            >
-              <Smartphone className="w-4 h-4 text-indigo-600" />
-              <span>App</span>
-            </button>
 
             {/* 2. Currency Selector */}
             <div className="relative">
