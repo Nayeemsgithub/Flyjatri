@@ -292,11 +292,55 @@ export const visaService = {
   getVisaById: (id) => api.get(`/visa/${id}`)
 };
 
+// Attach auth token if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('flyjatri_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const bookingService = {
+  getFeaturedDestinations: async () => {
+    try {
+      const res = await api.get('/destinations/featured');
+      if (isValidArrayData(res)) return res;
+    } catch (e) {}
+    return { data: { data: fallbackData.destinations } };
+  },
+  searchFlights: async (params) => {
+    try {
+      const res = await api.get('/flights/search', { params });
+      if (isValidArrayData(res)) return res;
+    } catch (e) {}
+    return { data: { data: fallbackData.flights } };
+  },
+  getHotels: async () => {
+    try {
+      const res = await api.get('/hotels');
+      if (isValidArrayData(res)) return res;
+    } catch (e) {}
+    return { data: { data: fallbackData.hotels } };
+  },
+  getTours: async () => {
+    try {
+      const res = await api.get('/tours');
+      if (isValidArrayData(res)) return res;
+    } catch (e) {}
+    return { data: { data: fallbackData.tours } };
+  },
+  getVisaCountries: async () => {
+    try {
+      const res = await api.get('/visa/countries');
+      if (isValidArrayData(res)) return res;
+    } catch (e) {}
+    return { data: { data: fallbackData.visaCountries } };
+  },
   createBooking: async (bookingData) => {
     try {
       const res = await api.post('/bookings', bookingData);
-      if (res && res.data && res.data.success && res.data.data) {
+      if (res && res.data && res.data.success) {
         return res;
       }
     } catch (e) {}
@@ -308,6 +352,7 @@ export const bookingService = {
       totalAmount: bookingData.totalAmount || 482,
       currency: 'USD',
       paymentMethod: bookingData.paymentMethod || 'bKash Online',
+      paymentStatus: 'Paid',
       bookingStatus: 'Confirmed',
       createdAt: new Date().toISOString()
     };
@@ -320,6 +365,34 @@ export const bookingService = {
     } catch (e) {}
     return { data: { data: [] } };
   },
+  trackBooking: async (query) => {
+    try {
+      const res = await api.get(`/bookings/track/${encodeURIComponent(query)}`);
+      if (res && res.data) return res;
+    } catch (e) {
+      if (e.response) throw e;
+    }
+    return {
+      data: {
+        success: true,
+        data: {
+          bookingId: query,
+          itemTitle: 'Flight BG-147 (Dhaka ➔ Dubai)',
+          primaryPassenger: { name: 'Traveler Demo', email: 'demo@flyjatri.com', phone: '+880 1712 345678' },
+          travelDate: '25 Sep 2026',
+          totalAmount: 482,
+          currency: 'USD',
+          bookingStatus: 'Confirmed',
+          timeline: [
+            { step: 'Order Placed & Paid', status: 'completed', desc: 'Online Payment Confirmed' },
+            { step: 'Voucher & E-Ticket Issued', status: 'completed', desc: 'Official PNR locked' },
+            { step: 'Ready for Travel', status: 'active', desc: 'Check-in open' },
+            { step: 'Trip Completed', status: 'pending', desc: 'Safe flight' }
+          ]
+        }
+      }
+    };
+  },
   getBookingById: (id) => api.get(`/bookings/${id}`)
 };
 
@@ -328,12 +401,14 @@ export const authService = {
     try {
       const res = await api.post('/auth/login', credentials);
       if (res && res.data && res.data.success) return res;
-    } catch (e) {}
-    // Offline / static demo auth fallback
+    } catch (e) {
+      if (e.response) throw e;
+    }
     const mockUser = {
       id: 'usr-1',
       name: credentials.email.split('@')[0] || 'Traveler Demo',
       email: credentials.email,
+      phone: '+880 1712 345678',
       role: 'user'
     };
     return {
@@ -348,11 +423,14 @@ export const authService = {
     try {
       const res = await api.post('/auth/register', userData);
       if (res && res.data && res.data.success) return res;
-    } catch (e) {}
+    } catch (e) {
+      if (e.response) throw e;
+    }
     const mockUser = {
       id: `usr-${Date.now()}`,
       name: userData.name,
       email: userData.email,
+      phone: userData.phone || '',
       role: 'user'
     };
     return {
@@ -362,6 +440,24 @@ export const authService = {
         user: mockUser
       }
     };
+  },
+  updateProfile: async (profileData) => {
+    try {
+      const res = await api.put('/auth/profile', profileData);
+      if (res && res.data && res.data.success) return res;
+    } catch (e) {
+      if (e.response) throw e;
+    }
+    return {
+      data: {
+        success: true,
+        message: 'Profile updated successfully!',
+        user: profileData
+      }
+    };
+  },
+  changePassword: async (passwords) => {
+    return api.put('/auth/change-password', passwords);
   },
   getMe: () => api.get('/auth/me')
 };

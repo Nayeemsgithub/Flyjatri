@@ -141,4 +141,97 @@ router.get('/me', requireAuth, (req, res) => {
   res.json({ success: true, user: userSafe });
 });
 
+// Update Profile Information (Name, Phone, Email, Passport, Personal Info)
+router.put('/profile', requireAuth, async (req, res) => {
+  try {
+    const userIndex = users.findIndex(u => u.id === req.user.id);
+    if (userIndex === -1) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const {
+      name,
+      phone,
+      email,
+      passportNumber,
+      nationality,
+      dateOfBirth,
+      gender,
+      address,
+      city,
+      postalCode,
+      emergencyContact
+    } = req.body;
+
+    const user = users[userIndex];
+
+    if (name) user.name = String(name).trim();
+    if (phone) user.phone = String(phone).trim();
+    if (email) {
+      const cleanEmail = String(email).trim().toLowerCase();
+      // Check if email already taken by another user
+      const duplicate = users.find(u => u.email === cleanEmail && u.id !== user.id);
+      if (duplicate) {
+        return res.status(400).json({ success: false, message: 'This email is already registered to another account.' });
+      }
+      user.email = cleanEmail;
+    }
+
+    if (passportNumber !== undefined) user.passportNumber = String(passportNumber).trim();
+    if (nationality !== undefined) user.nationality = String(nationality).trim();
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
+    if (gender !== undefined) user.gender = gender;
+    if (address !== undefined) user.address = String(address).trim();
+    if (city !== undefined) user.city = String(city).trim();
+    if (postalCode !== undefined) user.postalCode = String(postalCode).trim();
+    if (emergencyContact !== undefined) user.emergencyContact = emergencyContact;
+
+    user.updatedAt = new Date().toISOString();
+
+    const { password: _, ...userSafe } = user;
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully!',
+      user: userSafe
+    });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    res.status(500).json({ success: false, message: 'Failed to update profile.' });
+  }
+});
+
+// Change Password Endpoint
+router.put('/change-password', requireAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Current and new passwords are required.' });
+    }
+
+    if (String(newPassword).length < 6) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters.' });
+    }
+
+    const user = users.find(u => u.id === req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const isMatch = await bcrypt.compare(String(currentPassword), user.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'Current password is incorrect.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    user.updatedAt = new Date().toISOString();
+
+    res.json({ success: true, message: 'Password changed successfully!' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({ success: false, message: 'Failed to change password.' });
+  }
+});
+
 module.exports = router;

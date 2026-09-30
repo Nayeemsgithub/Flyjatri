@@ -59,6 +59,35 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (profileData) => {
+    try {
+      const response = await authService.updateProfile(profileData);
+      if (response.data.success) {
+        const updated = { ...user, ...response.data.user };
+        setUser(updated);
+        localStorage.setItem('flyjatri_user', JSON.stringify(updated));
+        return { success: true, message: response.data.message || 'Profile updated successfully!' };
+      }
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Failed to update profile. Please try again.'
+      };
+    }
+  };
+
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const response = await authService.changePassword({ currentPassword, newPassword });
+      return { success: true, message: response.data.message || 'Password updated successfully!' };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Failed to update password. Verify current password.'
+      };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('flyjatri_token');
@@ -85,6 +114,8 @@ export const AuthProvider = ({ children }) => {
       setAuthMode,
       login,
       register,
+      updateProfile,
+      changePassword,
       logout,
       openLoginModal,
       openRegisterModal

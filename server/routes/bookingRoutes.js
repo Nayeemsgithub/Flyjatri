@@ -77,6 +77,33 @@ router.get('/my-bookings', (req, res) => {
   res.json({ success: true, count: list.length, data: list });
 });
 
+// Get single booking by ID or track query
+router.get('/track/:query', (req, res) => {
+  const q = String(req.params.query).trim().toLowerCase();
+  const booking = bookings.find(b => 
+    b.bookingId.toLowerCase() === q ||
+    (b.primaryPassenger && b.primaryPassenger.phone && b.primaryPassenger.phone.replace(/\D/g, '').includes(q.replace(/\D/g, ''))) ||
+    (b.primaryPassenger && b.primaryPassenger.email && b.primaryPassenger.email.toLowerCase() === q)
+  );
+
+  if (!booking) {
+    return res.status(404).json({ success: false, message: 'No booking found matching your reference or details.' });
+  }
+
+  // Enrich with tracking timeline
+  const trackingDetails = {
+    ...booking,
+    timeline: [
+      { step: 'Order Placed & Paid', status: 'completed', time: booking.createdAt, desc: 'Payment received via ' + (booking.paymentMethod || 'Online Gateway') },
+      { step: 'Voucher & E-Ticket Issued', status: 'completed', time: booking.createdAt, desc: 'Official PNR confirmed and seats locked' },
+      { step: 'Ready for Travel', status: 'active', time: booking.travelDate, desc: 'Check-in open with airline/hotel partners' },
+      { step: 'Trip Completed', status: 'pending', time: booking.returnDate || booking.travelDate, desc: 'Safe journey with FlyJatri' }
+    ]
+  };
+
+  res.json({ success: true, data: trackingDetails });
+});
+
 // Get single booking by ID
 router.get('/:id', (req, res) => {
   const booking = bookings.find(b => b.bookingId === req.params.id);
