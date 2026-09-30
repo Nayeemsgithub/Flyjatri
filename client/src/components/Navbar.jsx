@@ -14,22 +14,14 @@ import {
   Globe
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCurrency } from '../context/CurrencyContext';
 import FlyJatriLogo from './FlyJatriLogo';
-
-const currencies = [
-  { code: 'BDT', symbol: '৳', name: 'Bangladeshi Taka', flag: '🇧🇩' },
-  { code: 'USD', symbol: '$', name: 'US Dollar', flag: '🇺🇸' },
-  { code: 'MYR', symbol: 'RM', name: 'Malaysian Ringgit', flag: '🇲🇾' },
-  { code: 'AED', symbol: 'AED', name: 'UAE Dirham', flag: '🇦🇪' },
-  { code: 'EUR', symbol: '€', name: 'Euro', flag: '🇪🇺' },
-  { code: 'GBP', symbol: '£', name: 'British Pound', flag: '🇬🇧' }
-];
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]);
+  const { selectedCurrency, currencies, changeCurrency } = useCurrency();
   const { user, logout, openLoginModal } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,49 +55,62 @@ export default function Navbar() {
             <FlyJatriLogo variant="red" showSubtext={true} height={30} />
           </Link>
 
-          {/* Right Action Items in Exact Clean Sequence: Currency -> Helpline -> Login/Register */}
+          {/* Right Action Items in Exact Clean Sequence: Currency (with dynamic Flag) -> Helpline -> Login/Register */}
           <div className="flex items-center space-x-3 sm:space-x-5">
 
-            {/* 2. Currency Selector */}
+            {/* 2. Currency Selector (Flag dynamically follows selected currency) */}
             <div className="relative">
               <button
                 onClick={() => {
                   setCurrencyMenuOpen(!currencyMenuOpen);
                   setUserMenuOpen(false);
                 }}
-                className="flex items-center gap-1.5 text-xs font-bold text-slate-800 hover:text-[#E11D48] transition-colors py-1.5 px-2 rounded-lg hover:bg-slate-50"
-                title="Select Currency"
+                className="flex items-center gap-1.5 text-xs font-bold text-slate-800 hover:text-[#E11D48] transition-colors py-1.5 px-2.5 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200"
+                title={`Selected Currency: ${selectedCurrency.name}`}
               >
-                <span className="text-base leading-none">{selectedCurrency.flag}</span>
-                <span>{selectedCurrency.code}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                {/* Dynamic Country Flag Following Selected Currency */}
+                <span className="text-lg leading-none select-none transition-transform hover:scale-110">
+                  {selectedCurrency.flag}
+                </span>
+                <span className="font-semibold tracking-wide text-slate-900">
+                  {selectedCurrency.code}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
 
               {currencyMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-50">
-                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
-                    Select Currency
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 flex items-center justify-between">
+                    <span>Select Currency</span>
+                    <span className="text-[9px] text-slate-400 lowercase font-normal">auto-converting</span>
                   </div>
-                  {currencies.map((curr) => (
-                    <button
-                      key={curr.code}
-                      onClick={() => {
-                        setSelectedCurrency(curr);
-                        setCurrencyMenuOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-xs transition-colors text-left ${
-                        selectedCurrency.code === curr.code
-                          ? 'bg-rose-50 text-[#E11D48] font-bold'
-                          : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-base leading-none">{curr.flag}</span>
-                        <span>{curr.code}</span>
-                      </div>
-                      <span className="text-slate-400 font-mono text-[11px]">{curr.symbol}</span>
-                    </button>
-                  ))}
+                  <div className="max-h-64 overflow-y-auto py-1">
+                    {currencies.map((curr) => (
+                      <button
+                        key={curr.code}
+                        onClick={() => {
+                          changeCurrency(curr);
+                          setCurrencyMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 text-xs transition-colors text-left ${
+                          selectedCurrency.code === curr.code
+                            ? 'bg-rose-50 text-[#E11D48] font-bold'
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-lg leading-none">{curr.flag}</span>
+                          <div>
+                            <div className="font-bold leading-tight">{curr.code}</div>
+                            <div className="text-[10px] text-slate-400 font-normal leading-tight">{curr.name}</div>
+                          </div>
+                        </div>
+                        <span className="text-slate-500 font-mono text-[11px] font-semibold bg-slate-100 px-1.5 py-0.5 rounded">
+                          {curr.symbol}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
