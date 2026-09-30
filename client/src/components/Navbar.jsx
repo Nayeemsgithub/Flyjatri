@@ -16,6 +16,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import FlyJatriLogo from './FlyJatriLogo';
+import FlagIcon from './FlagIcon';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -65,13 +66,14 @@ export default function Navbar() {
                   setCurrencyMenuOpen(!currencyMenuOpen);
                   setUserMenuOpen(false);
                 }}
-                className="flex items-center gap-1.5 text-xs font-bold text-slate-800 hover:text-[#E11D48] transition-colors py-1.5 px-2.5 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200"
+                className="flex items-center gap-2 text-xs font-bold text-slate-800 hover:text-[#E11D48] transition-colors py-1.5 px-2.5 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200"
                 title={`Selected Currency: ${selectedCurrency.name}`}
               >
-                {/* Dynamic Country Flag Following Selected Currency */}
-                <span className="text-lg leading-none select-none transition-transform hover:scale-110">
-                  {selectedCurrency.flag}
-                </span>
+                {/* Dynamic Vector Country Flag Following Selected Currency */}
+                <FlagIcon 
+                  countryCode={selectedCurrency.country || selectedCurrency.code} 
+                  className="w-5 h-3.5 rounded-[2px] shadow-xs" 
+                />
                 <span className="font-semibold tracking-wide text-slate-900">
                   {selectedCurrency.code}
                 </span>
@@ -99,7 +101,10 @@ export default function Navbar() {
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <span className="text-lg leading-none">{curr.flag}</span>
+                          <FlagIcon 
+                            countryCode={curr.country || curr.code} 
+                            className="w-5 h-3.5 rounded-[2px] shadow-xs" 
+                          />
                           <div>
                             <div className="font-bold leading-tight">{curr.code}</div>
                             <div className="text-[10px] text-slate-400 font-normal leading-tight">{curr.name}</div>
