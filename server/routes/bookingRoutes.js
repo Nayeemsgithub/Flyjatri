@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { bookingLimiter } = require('../middleware/security');
 
 // Mock store for bookings
 const bookings = [
@@ -24,13 +25,16 @@ const bookings = [
   }
 ];
 
-// Create new booking
-router.post('/', (req, res) => {
+// Create new booking (Protected with Anti-Abuse Rate Limiter)
+router.post('/', bookingLimiter, (req, res) => {
   const { type, item, passenger, travelDate, returnDate, guests, totalAmount, currency, paymentMethod } = req.body;
 
-  if (!passenger || !passenger.name || !passenger.email) {
-    return res.status(400).json({ success: false, message: 'Primary passenger details are required.' });
+  if (!passenger || !passenger.name || !passenger.email || !passenger.phone) {
+    return res.status(400).json({ success: false, message: 'Primary passenger name, email, and phone are required.' });
   }
+
+  const cleanEmail = String(passenger.email).trim().toLowerCase();
+  const cleanName = String(passenger.name).trim();
 
   const bookingId = `FJ-${Date.now().toString().slice(-6)}`;
   const newBooking = {
@@ -38,11 +42,15 @@ router.post('/', (req, res) => {
     type: type || 'flight',
     itemTitle: item?.title || item?.airline ? `${item?.airline} (${item?.from?.city} -> ${item?.to?.city})` : 'Travel Booking',
     itemDetails: item,
-    primaryPassenger: passenger,
+    primaryPassenger: {
+      ...passenger,
+      name: cleanName,
+      email: cleanEmail
+    },
     travelDate: travelDate || new Date().toISOString().split('T')[0],
     returnDate: returnDate || '',
-    seats: guests || 1,
-    totalAmount: totalAmount || (item?.price ? item.price : 0),
+    seats: Number(guests) || 1,
+    totalAmount: Number(totalAmount) || (item?.price ? item.price : 0),
     currency: currency || 'USD',
     paymentMethod: paymentMethod || 'Online Payment',
     paymentStatus: 'Paid',
@@ -64,7 +72,7 @@ router.get('/my-bookings', (req, res) => {
   const email = req.query.email;
   let list = bookings;
   if (email) {
-    list = bookings.filter(b => b.primaryPassenger.email.toLowerCase() === email.toLowerCase());
+    list = bookings.filter(b => b.primaryPassenger.email.toLowerCase() === String(email).toLowerCase());
   }
   res.json({ success: true, count: list.length, data: list });
 });
