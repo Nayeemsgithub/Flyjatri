@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { BookingProvider } from './context/BookingContext';
@@ -7,6 +7,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
+import SplashScreen from './components/SplashScreen';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -20,8 +21,18 @@ import MyBookingsPage from './pages/MyBookingsPage';
 import GenericServicePage from './pages/GenericServicePage';
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
   return (
     <ErrorBoundary>
+      {/* 5-8 Second Cinematic Startup Animation */}
+      {showSplash && (
+        <SplashScreen 
+          duration={5500} 
+          onComplete={() => setShowSplash(false)} 
+        />
+      )}
+
       <AuthProvider>
         <CurrencyProvider>
           <BookingProvider>
