@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plane, Sparkles, ChevronRight } from 'lucide-react';
 
-export default function SplashScreen({ onComplete, duration = 5500 }) {
+export default function SplashScreen({ onComplete, duration = 2500 }) {
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('Initializing Global Travel Portal...');
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -13,12 +13,10 @@ export default function SplashScreen({ onComplete, duration = 5500 }) {
       const currentProgress = Math.min(100, Math.round((elapsed / duration) * 100));
       setProgress(currentProgress);
 
-      if (currentProgress < 30) {
-        setStatusText('Initializing Global Travel Portal...');
-      } else if (currentProgress < 65) {
+      if (currentProgress < 35) {
+        setStatusText('Initializing FlyJatri Travel Portal...');
+      } else if (currentProgress < 75) {
         setStatusText('Connecting Airline & Hotel Networks...');
-      } else if (currentProgress < 90) {
-        setStatusText('Curating Best Deals & Packages...');
       } else {
         setStatusText('Welcome to FlyJatri — Your Trip Our Assistance');
       }
@@ -28,9 +26,9 @@ export default function SplashScreen({ onComplete, duration = 5500 }) {
         setIsFadingOut(true);
         setTimeout(() => {
           if (onComplete) onComplete();
-        }, 600); // fade out duration
+        }, 400); // quick fade out duration
       }
-    }, 40);
+    }, 25);
 
     return () => clearInterval(interval);
   }, [duration, onComplete]);

@@ -25,10 +25,10 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      {/* 5-8 Second Cinematic Startup Animation */}
+      {/* 2-3 Second Fast Cinematic Startup Animation */}
       {showSplash && (
         <SplashScreen 
-          duration={5500} 
+          duration={2500} 
           onComplete={() => setShowSplash(false)} 
         />
       )}
